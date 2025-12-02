@@ -9,15 +9,14 @@ import { path } from 'app-root-path';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '/opt/app/.env',   // <<< ВАЖНО! Добавлено
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
 
     RMQModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: getRMQConfig,
       inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return getRMQConfig(configService);
+      },
     }),
 
     ServeStaticModule.forRoot({
