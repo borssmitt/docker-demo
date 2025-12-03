@@ -1,27 +1,25 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { RMQModule } from 'nestjs-rmq';
 import { ApiController } from './api.controller';
-import { getRMQConfig } from './configs/rmq.config';
 import { FilesService } from './files.service';
 import { path } from 'app-root-path';
 
+// Новый RMQ модуль (наш собственный)
+import { RMQModule } from './rmq/rmq.module';
+
 @Module({
   imports: [
+    // Глобальная загрузка переменных из /opt/app/.env (в контейнере)
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '/opt/app/.env',
     }),
 
-    RMQModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        return getRMQConfig(configService);
-      },
-    }),
+    // Наш собственный RMQ модуль
+    RMQModule,
 
+    // Для статики — отдаёт /uploads по /uploads/*
     ServeStaticModule.forRoot({
       rootPath: `${path}/uploads`,
       serveRoot: '/uploads',
