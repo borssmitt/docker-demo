@@ -3,13 +3,13 @@ FROM node:18-alpine AS build
 
 WORKDIR /opt/app
 
-# Копируем весь монорепо-проект
-COPY ../../../ ./
+# Копируем весь проект в контекст (монорепо)
+COPY . .
 
-# Устанавливаем зависимости (dev + prod)
+# Устанавливаем зависимости
 RUN npm install
 
-# Собираем только API
+# Собираем API
 RUN npm run build api
 
 
@@ -18,16 +18,13 @@ FROM node:18-alpine
 
 WORKDIR /opt/app
 
-# Копируем только package.json (для prod зависимостей)
 COPY package*.json ./
-
-# Устанавливаем только продакшен зависимости
 RUN npm install --only=prod
 
 # Копируем собранный API
 COPY --from=build /opt/app/dist/apps/api ./dist
 
-# Копируем .env внутрь контейнера
-COPY .env ./
+# Копируем env
+COPY apps/api/.env .env
 
 CMD ["node", "./dist/main.js"]
