@@ -9,7 +9,10 @@ import { path } from 'app-root-path';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '/opt/app/.env',
+    }),
 
     RMQModule.forRootAsync({
       imports: [ConfigModule],
@@ -24,6 +27,7 @@ import { path } from 'app-root-path';
       serveRoot: '/uploads',
     }),
   ],
+
   controllers: [ApiController],
   providers: [FilesService],
 })
