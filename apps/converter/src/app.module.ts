@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { RMQModule } from 'nestjs-rmq';
-import { getRMQConfig } from './configs/rmq.config';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { GenerateService } from './generate.service';
-const configService = new ConfigService();
 
 @Module({
-	imports: [
-		ConfigModule.forRoot({ isGlobal: true }),
-		RMQModule.forRoot(getRMQConfig(configService)),
-	],
-	controllers: [AppController],
-	providers: [GenerateService]
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: 'apps/converter/.env',
+    }),
+  ],
+  controllers: [AppController],
+  providers: [GenerateService],
 })
-export class AppModule { }
+export class AppModule {}
+
