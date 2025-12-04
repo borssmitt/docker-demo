@@ -1,30 +1,28 @@
-# -------- Stage 1: Build --------
 FROM node:16-alpine AS build
 
-WORKDIR /opt/app
+WORKDIR /opt/api
 
-# Копируем весь проект в контекст (монорепо)
-COPY . .
+# 1. Копируем только API package.json
+COPY apps/api/package*.json ./
 
-# Устанавливаем зависимости
+# 2. Ставим только API зависимости
 RUN npm install
 
-# Собираем API
-RUN npm run build api
+# 3. Копируем весь проект (для контрактов и общих модулей)
+COPY . .
+
+# 4. Собираем API
+WORKDIR /opt/api
+RUN npm run build
 
 
-# -------- Stage 2: Run --------
-FROM node:18-alpine
+FROM node:16-alpine
 
-WORKDIR /opt/app
+WORKDIR /opt/api
 
-COPY package*.json ./
-RUN npm install --only=prod
-
-# Копируем собранный API
-COPY --from=build /opt/app/dist/apps/api ./dist
-
-# Копируем env
+COPY --from=build /opt/api/dist ./dist
 COPY apps/api/.env .env
+COPY apps/api/package*.json ./
+RUN npm install --only=prod
 
 CMD ["node", "./dist/main.js"]
